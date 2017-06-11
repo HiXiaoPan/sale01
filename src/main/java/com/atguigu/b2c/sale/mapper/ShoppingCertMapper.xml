@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.b2c.sale.mapper.ShoppingCertMapper">
+	<insert id="insert_shoppingcar" useGeneratedKeys="true"
+	keyColumn="id" keyProperty="id">
+	insert into t_mall_shoppingcar (sku_mch ,
+	sku_jg , tjshl , hj, yh_id , shp_id,sku_id , shp_tp  ,kcdz)
+	values(#{sku_mch}
+	, #{sku_jg} , #{tjshl} , #{hj}, #{yh_id} , #{shp_id},#{sku_id},
+	#{shp_tp},#{kcdz})
+	</insert>
+	<update id="update_shoppingcar">
+		update t_mall_shoppingcar set tjshl=#{tjshl},hj=#{hj} where id=#{id}
+	</update>
+	<update id="update_Shopping_car_shfxz">
+		update t_mall_shoppingcar set shfxz=#{shfxz} where id=#{id}
+	</update>
+	<update id="update_Shopping_car_shfxz_hj">
+		update t_mall_shoppingcar set shfxz=#{shfxz}, tjshl=#{tjshl},hj=#{hj} where id=#{id}
+	</update>
+	<select id="select_shopping_car_by_userid" resultType="com.atguigu.b2c.sale.bean.T_MALL_SHOPPINGCAR">
+		select * from t_mall_shoppingcar where yh_id=#{yh_id}
+	</select>
+	<update id="update_shoppingCar_unchecked_by_userid">
+		update t_mall_shoppingcar set shfxz=0 where yh_id=#{userid}
+	</update>
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.b2c.sale.mapper.SkuInfoDetailsMapper">
+  	<select id="select_sku_attr_product_by_skuid_shpid" resultMap="select_sku_detail_map">
+	SELECT a.*,c.`url`,d.`shxm_mch`,e.`shxzh`,e.`shxzh_mch` FROM t_mall_sku a,
+	t_mall_product_image c,
+	t_mall_attr d,t_mall_value e,t_mall_sku_attr_value f
+	WHERE a.`id`=f.`sku_id` AND a.`shp_id`=c.`shp_id` AND f.`shxm_id`=d.`id`
+	AND f.`shxzh_id`=e.`id`
+	AND a.`id`=#{skuid}
+  	</select>
+  	<resultMap type="com.atguigu.b2c.sale.bean.Sql_Sku_Details" id="select_sku_detail_map" autoMapping="true">
+  		<result column="id" property="id" />
+  		<collection property="imgs" autoMapping="true" ofType="com.atguigu.b2c.sale.bean.T_MALL_PRODUCT_IMAGE"></collection>
+  		<collection property="attrAndValue" autoMapping="true" ofType="com.atguigu.b2c.sale.bean.Sql_Attrvalue_Attr_OnebyOne"></collection>
+  	</resultMap>
+  	
+  	<select id="selectSkuByshpid" resultType="com.atguigu.b2c.sale.bean.T_MALL_SKU">
+  		select * from t_mall_sku where shp_id=#{shpid}
+  	</select>
+</mapper>

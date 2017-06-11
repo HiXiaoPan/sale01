@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.b2c.sale.mapper.OrderMapper">
+	<select id="getKcdzBySkuIds" resultType="String" >
+		select kcdz from t_mall_sku where id 
+		in(
+			<foreach collection="checkedSkuIds" item="sku_id" separator=",">
+				#{sku_id}
+			</foreach>
+		)
+		group by kcdz
+	</select>
+	<insert id="insertOrder" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into t_mall_order(shhr , zje ,jdh ,yh_id ,dzh_id , dzh_mch,lxfsh,yjsdshj)
+		values(#{shhr} , #{zje} ,#{jdh} ,#{yh_id} ,#{dzh_id} , #{dzh_mch},#{lxfsh},#{yjsdshj} )
+	</insert>
+	<insert id="insertOrder_Info" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into t_mall_order_info(dd_id , sku_id,sku_mch , shp_tp , sku_jg , sku_shl , sku_kcdz , gwch_id  )
+		values
+		<foreach collection="order_info" item="info" open="(" close=")" separator=",">
+			#{dd_id} , #{info.sku_id},#{info.sku_mch} , #{info.shp_tp} , #{info.sku_jg} , #{info.sku_shl} , #{info.sku_kcdz} , #{info.gwch_id}
+		</foreach>
+	</insert>
+	<delete id="delete_shoppingCar_by_userid_skuid_in_orderinfo">
+		delete from t_mall_shoppingcar where id in (
+			<foreach collection="order_info" item="info" separator=",">
+				#{info.gwch_id}
+			</foreach>
+		)
+	</delete>
+	<!-- 插入物流表 -->
+	<insert id="insert_flow" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into t_mall_flow(  yh_id ,dd_id ,mdd ) values( #{yh_id} ,#{dd_id} ,#{mdd} )
+	</insert>
+	<update id="update_Order_jdh_by_ddid">
+		update t_mall_order set jdh=#{jdh} where id=#{id}
+	</update>
+	<update id="update_flow_by_ddid">
+		update t_mall_flow 
+		<set>
+
+			<if test="ywy!=null and ywy!=''">
+				ywy = #{ywy},
+			</if>
+			<if test="lxfsh !=null and lxfsh !=''">
+				lxfsh =#{lxfsh},
+			</if>
+			<if test="psshj!=null and psshj!=''">
+				psshj=#{psshj},
+			</if>
+			<if test="psmsh!=null and psmsh!=''">
+				psmsh=#{psmsh}
+			</if>
+			<if test="mqdd!=null and mqdd!=''">
+				mqdd=#{mqdd}
+			</if>
+		</set>
+		where dd_id=#{dd_id}
+	</update>
+	<update id="update_sku_kc_xl_by_order_info">
+		update t_mall_sku set kc=kc-#{sku_shl} ,sku_xl=sku_xl+#{sku_shl} where id=#{sku_id}
+	</update>
+	<select id="select_skukc_by_skuid" resultType="t_MALL_SKU">
+		select * from t_mall_sku where id=#{id} for update
+	</select>
+</mapper>

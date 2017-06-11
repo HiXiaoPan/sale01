@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.b2c.sale.mapper.SearchMapper">
+	<resultMap type="com.atguigu.b2c.sale.bean.T_MALL_ATTR_CONTAIN_VALUE" id="attrAndValues"
+	autoMapping="true">
+		<result column="attr_id" property="id"/>
+		<collection property="values" ofType="com.atguigu.b2c.sale.bean.T_MALL_VALUE" autoMapping="true">
+			<result column="value_id" property="id"/>
+		</collection>
+	</resultMap>
+ 	<select id="select_attrAndValue_by_fl2id" resultMap="attrAndValues">
+ 		SELECT a.*,b.*,a.id AS attr_id,b.id AS value_id FROM
+		t_mall_attr a ,t_mall_value b
+		WHERE a.Id = b.shxm_id
+		AND a.flbh2 =#{class_2_id}
+ 	</select>
+	
+	 <select id="select_sku_shp_tm_by_fl2id_attrids_attrValueids" resultMap="select_sku_shp_tm_by_fl2id_attrids_attrValueids">
+	SELECT a.*,b.shp_mch,b.shp_tp,b.shp_msh,d.ppmch,d.url,a.`id` AS t_sku_id,b.`id` AS t_shp_id,d.`id`AS t_tm_id
+	FROM t_mall_sku a , t_mall_product b , t_mall_tm_class c
+	,t_mall_trade_mark d,
+	t_mall_sku_attr_value e
+	WHERE a.`shp_id`=b.`id` AND b.`pp_id`=c.`pp_id` AND b.`flbh1`=c.`flbh1` AND
+	c.`pp_id`=d.`id`
+	AND a.`id`=e.`sku_id` AND b.`flbh2`=#{class_2_id}
+	
+		${attr_value_sql}
+		${sql}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	 <select id="select_sku_shp_tm_by_fl2id_attrids_attrValueids_err" resultMap="select_sku_shp_tm_by_fl2id_attrids_attrValueids">
+	SELECT a.*,b.*,d.*,a.`id` AS t_sku_id,b.`id` AS t_shp_id,d.`id`AS t_tm_id
+	FROM t_mall_sku a , t_mall_product b , t_mall_tm_class c
+	,t_mall_trade_mark d,
+	t_mall_sku_attr_value e
+	WHERE a.`shp_id`=b.`id` AND b.`pp_id`=c.`pp_id` AND b.`flbh1`=c.`flbh1` AND
+	c.`pp_id`=d.`id`
+	AND a.`id`=e.`sku_id` AND b.`flbh2`=#{flbh2id}
+	<if test="attrAndValueids!=null">
+		AND a.`id` IN ( SELECT sku_1.sku_id from
+			<foreach collection="attrAndValueids" separator="," index="i" item="av"><!-- 这里完成不了 i+1 运算并拼接到 sku_ 后的操作。concat是字符串 "xxx" 而不是需要的 xxx -->
+				(SELECT sku_id FROM t_mall_sku_attr_value  WHERE  `shxm_id`= #{av.shxm_id} AND`shxzh_id`=#{av.shxzh_id}) sku_#{#{i}+1}
+			</foreach>
+			<where>
+				<foreach collection="attrAndValueids" separator="," index="i">
+			
+					<if test="i>0">
+						and concat("sku_",(${i}-1)).sku_id=concat("sku_",${i}).sku_id
+					</if>
+				</foreach>
+			</where>
+		)
+	</if>
+
+	</select>
+	
+	
+	<resultMap type="com.atguigu.b2c.sale.bean.UNION_SKU_SHP_TM" id="select_sku_shp_tm_by_fl2id_attrids_attrValueids" autoMapping="true">
+		<result column="t_sku_id" property="id" />
+		<association property="product" autoMapping="true" javaType="com.atguigu.b2c.sale.bean.T_MALL_PRODUCT">
+			<result column="t_shp_id" property="id" />
+		</association>
+		<association property="tm" autoMapping="true" javaType="com.atguigu.b2c.sale.bean.T_MALL_TRADE_MARK">
+			<result column="t_tm_id" property="id" />
+		</association>
+	</resultMap> 
+</mapper>
